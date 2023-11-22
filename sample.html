@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Rotation Syncer</title>
+    <style>
+      body { margin: 0; }
+    </style>
+  </head>
+  <body>
+    <script type="module">
+      import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.min.js';
+
+      // Create a scene
+      const scene = new THREE.Scene();
+
+      // Create a plane geometry
+      const planeGeometry = new THREE.PlaneGeometry(5, 5, 2);
+
+      // Create a material
+      const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, side: THREE.DoubleSide });
+
+      // Create a plane mesh
+      const plane = new THREE.Mesh(planeGeometry, material);
+
+      // Add the plane to the scene
+      scene.add(plane);
+
+      // Create a y-axis reference line
+      const yLineGeometry = new THREE.BufferGeometry();
+      const yLineMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff });
+
+      const yLinePoints = [
+        new THREE.Vector3(0, -10, 0), // Start point
+        new THREE.Vector3(0, 10, 0),  // End point
+      ];
+
+      yLineGeometry.setFromPoints(yLinePoints);
+
+      const yReferenceLine = new THREE.Line(yLineGeometry, yLineMaterial);
+      scene.add(yReferenceLine);
+
+      // Create an x-axis reference line
+      const xLineGeometry = new THREE.BufferGeometry();
+      const xLineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
+
+      const xLinePoints = [
+        new THREE.Vector3(-10, 0, 0), // Start point
+        new THREE.Vector3(10, 0, 0),  // End point
+      ];
+
+      xLineGeometry.setFromPoints(xLinePoints);
+
+      const xReferenceLine = new THREE.Line(xLineGeometry, xLineMaterial);
+      scene.add(xReferenceLine);
+
+      // Create a camera
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.z = 5;
+
+      // Create a renderer
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      // Function to animate rotation
+      const animateRotation = function (targetX, targetY) {
+        const animationSpeed = 0.01;
+
+        const animate = function () {
+          requestAnimationFrame(animate);
+
+          // Interpolate towards the target angles
+          plane.rotation.x += (targetX - plane.rotation.x) * animationSpeed;
+          plane.rotation.y += (targetY - plane.rotation.y) * animationSpeed;
+
+          // Render the scene with the camera
+          renderer.render(scene, camera);
+
+          // Stop animation when close to the target angles
+          if (Math.abs(targetX - plane.rotation.x) < 0.01 && Math.abs(targetY - plane.rotation.y) < 0.01) {
+            cancelAnimationFrame(animateId);
+          }
+        };
+
+        const animateId = requestAnimationFrame(animate);
+      };
+
+      // Start the animation to rotate to 45 deg on x-axis and 50 deg on y-axis
+      animateRotation(THREE.MathUtils.degToRad(0), THREE.MathUtils.degToRad(45));
+    </script>
+  </body>
+</html>
